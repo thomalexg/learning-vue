@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Vue</title>
+</head>
+<!DOCTYPE html>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+<style>
+    [v-cloak] {
+        display: none;
+    }
+</style>
+
+<div id="app">
+    <div class="container">
+        <div class="card mt-5">
+            <h2 class="card-header">Near Earth Objects</h2>
+            <div class="m-3" v-cloak v-if="numAsteroids">
+                <p>showing {{numAsteroids}} items</p>
+                <p>{{closestObject}} has the shortest miss distance</p>
+            </div>
+        <table class="table table-striped">
+            <thead class="thead-light">
+                <th>#</th>
+                <th>Close Approach Date</th>
+                <th>Orbiting body</th>
+                <th>Miss Distance</th>
+                <th>Remove</th>
+            </thead>
+            <tbody v-cloak>
+                <tr v-for="(a, i) in asteroids" :key="a.miss_distance[0]" :style="getRowStyle(a)">
+                    <td>{{i+1}}</td>
+                    <td>
+{{a.close_approach_date_full}}
+                    </td>
+                    <td>{{a.orbiting_body}}</td>
+                    <td>
+                        <ul>
+                            <li v-for="(value, key) in a.miss_distance">
+                                {{key + ": " + value}}
+                            </li>
+                        </ul>
+                    </td>
+                    <td><button @click="remove(index)" class="btn btn-warning">Remove</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+   
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+          asteroids : []
+        },
+        computed: {
+            numAsteroids: function () {
+                return this.asteroids.length
+            },
+            closestObject: function () {
+                return this.asteroids.sort((a,b) => b.miss_distance[0])[0].orbiting_body
+            // // const distances = this.asteroids.map((a,i) => {distance: a.miss_distance[0];
+            // //     index: i});
+            // //     console.log(distances);
+            // // const index = distances.sort((a,b) => b-a)[0].index;
+            // // return this.asteroids[index]
+            }
+        },
+        created: function () {
+            this.fetchAsteroids();
+        },
+        methods: {
+            fetchAsteroids: function () {
+                const apiKey = 
+    const url = 'https://api.nasa.gov/neo/rest/v1/neo/3542519?api_key=' + apiKey;
+    axios.get(url)
+        .then(function (res) {
+            vm.asteroids = res.data.close_approach_data.slice(0,10);
+        });
+            },
+            remove: function (index) {
+                this.asteroids.splice(index,1)
+            },
+            getRowStyle: function (a) {
+                if (a.orbiting_body == "Earth") {
+                    return {border: "3px solid red"};
+
+            }}
+        }        
+    });    
+
+</script>
+</html>
